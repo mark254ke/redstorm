@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+# former changes to htnl files
+.initialhtm(ai-studio only!).html
+#API
+.env
+#
+initial geminiService.ts

@@ -2,7 +2,7 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { AnalysisResult } from '../types';
 
 // Ensure API key is present
-const apiKey = process.env.API_KEY || '';
+const apiKey = process.env.API_KEY || 'AIzaSyD_IWUVlhSKSpWleNPmdd5wx0IWWKNKS2w';
 
 const ai = new GoogleGenAI({ apiKey });
 
