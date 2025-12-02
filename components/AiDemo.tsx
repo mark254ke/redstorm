@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { analyzeProjectIdea } from '../services/geminiService';
 import { AnalysisResult } from '../types';
 import { Loader2, Send, Sparkles } from 'lucide-react';
+import { IdeaLimiter } from './IdeaLimiter';
 
 export const AiDemo: React.FC = () => {
   const [idea, setIdea] = useState('');
@@ -9,10 +10,11 @@ export const AiDemo: React.FC = () => {
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const handleAnalyze = async (e: React.FormEvent) => {
+  const handleAnalyze = async (e: React.FormEvent, incrementUsage: () => void) => {
     e.preventDefault();
     if (!idea.trim()) return;
 
+    incrementUsage();
     setLoading(true);
     setError(null);
     setResult(null);
@@ -45,26 +47,30 @@ export const AiDemo: React.FC = () => {
         </div>
 
         <div className="bg-dark-800 rounded-2xl p-6 md:p-10 border border-gray-800 shadow-2xl">
-          <form onSubmit={handleAnalyze} className="relative">
-            <label htmlFor="idea" className="sr-only">Project Idea</label>
-            <div className="flex flex-col md:flex-row gap-4">
-              <input
-                type="text"
-                id="idea"
-                value={idea}
-                onChange={(e) => setIdea(e.target.value)}
-                placeholder="e.g., An AI app that scans fridge ingredients and suggests recipes..."
-                className="flex-1 bg-dark-900 text-white placeholder-gray-500 border border-gray-700 rounded-lg px-6 py-4 focus:outline-none focus:ring-2 focus:ring-redstorm-500 focus:border-transparent transition-all"
-              />
-              <button
-                type="submit"
-                disabled={loading || !idea.trim()}
-                className="bg-white text-black font-bold px-8 py-4 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-w-[160px]"
-              >
-                {loading ? <Loader2 className="animate-spin h-5 w-5" /> : <><Send className="h-5 w-5" /> Analyze</>}
-              </button>
-            </div>
-          </form>
+          <IdeaLimiter>
+            {(isBlocked, increment) => (
+              <form onSubmit={(e) => handleAnalyze(e, increment)} className="relative">
+                <label htmlFor="idea" className="sr-only">Project Idea</label>
+                <div className="flex flex-col md:flex-row gap-4">
+                  <input
+                    type="text"
+                    id="idea"
+                    value={idea}
+                    onChange={(e) => setIdea(e.target.value)}
+                    placeholder="e.g., An AI app that scans fridge ingredients and suggests recipes..."
+                    className="flex-1 bg-dark-900 text-white placeholder-gray-500 border border-gray-700 rounded-lg px-6 py-4 focus:outline-none focus:ring-2 focus:ring-redstorm-500 focus:border-transparent transition-all"
+                  />
+                  <button
+                    type="submit"
+                    disabled={loading || !idea.trim() || isBlocked}
+                    className="bg-white text-black font-bold px-8 py-4 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-w-[160px]"
+                  >
+                    {loading ? <Loader2 className="animate-spin h-5 w-5" /> : <><Send className="h-5 w-5" /> Analyze</>}
+                  </button>
+                </div>
+              </form>
+            )}
+          </IdeaLimiter>
 
           {error && (
             <div className="mt-6 p-4 bg-red-900/20 border border-red-900/50 rounded-lg text-red-200 text-sm">
